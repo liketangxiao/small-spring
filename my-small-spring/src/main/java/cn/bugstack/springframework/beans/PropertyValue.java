@@ -1,4 +1,4 @@
-package cn.bugstack.springframework.beans.factory;
+package cn.bugstack.springframework.beans;
 
 /**
  * @Description: 属性

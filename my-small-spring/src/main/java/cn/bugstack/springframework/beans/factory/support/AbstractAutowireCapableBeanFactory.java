@@ -1,8 +1,8 @@
 package cn.bugstack.springframework.beans.factory.support;
 
-import cn.bugstack.springframework.beans.factory.BeansException;
-import cn.bugstack.springframework.beans.factory.PropertyValue;
-import cn.bugstack.springframework.beans.factory.PropertyValues;
+import cn.bugstack.springframework.beans.BeansException;
+import cn.bugstack.springframework.beans.PropertyValue;
+import cn.bugstack.springframework.beans.PropertyValues;
 import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
 import cn.bugstack.springframework.beans.factory.config.BeanReference;
 import cn.hutool.core.bean.BeanUtil;
@@ -39,7 +39,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 if (value instanceof BeanReference) {
                     // A 依赖 B，获取 B 的实例化
                     BeanReference beanReference = (BeanReference) value;
-                    getBean(beanReference.getBeanName());
+                    value = getBean(beanReference.getBeanName());
                 }
                 BeanUtil.setProperty(bean, name, value);
             }

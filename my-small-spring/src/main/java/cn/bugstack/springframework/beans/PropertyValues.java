@@ -1,4 +1,4 @@
-package cn.bugstack.springframework.beans.factory;
+package cn.bugstack.springframework.beans;
 
 import java.util.ArrayList;
 import java.util.List;
