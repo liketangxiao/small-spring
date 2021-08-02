@@ -1,7 +1,6 @@
 package cn.bugstack.springframework.beans.factory.support;
 
 import cn.bugstack.springframework.beans.BeansException;
-import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
 import cn.bugstack.springframework.core.io.Resource;
 import cn.bugstack.springframework.core.io.ResourceLoader;
 
@@ -16,7 +15,9 @@ public interface BeanDefinitionReader {
 
     ResourceLoader getResourceLoader();
 
-    void loadBeanDefinitions(Resource resource)  throws BeansException;
+    void loadBeanDefinitions(Resource resource) throws BeansException;
 
     void loadBeanDefinitions(String location) throws BeansException;
+
+    void loadBeanDefinitions(String[] configLocations) throws BeansException;
 }
