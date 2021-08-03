@@ -11,4 +11,8 @@ import javax.sound.midi.VoiceStatus;
  */
 public interface ConfigurableAplicationContext extends AplicationContext {
     void refresh() throws BeansException;
+
+    void registerShutdownHook();
+
+    void close();
 }
