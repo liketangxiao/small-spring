@@ -9,7 +9,7 @@ import javax.sound.midi.VoiceStatus;
  * @Author wangyuj
  * @Date 2021/8/2
  */
-public interface ConfigurableAplicationContext extends AplicationContext {
+public interface ConfigurableAplicationContext extends ApplicationContext {
     void refresh() throws BeansException;
 
     void registerShutdownHook();

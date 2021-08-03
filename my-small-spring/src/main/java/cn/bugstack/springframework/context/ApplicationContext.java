@@ -7,6 +7,6 @@ import cn.bugstack.springframework.beans.factory.ListableBeanFactory;
  * @Author wangyuj
  * @Date 2021/8/2
  */
-public interface AplicationContext extends ListableBeanFactory {
+public interface ApplicationContext extends ListableBeanFactory {
 
 }
