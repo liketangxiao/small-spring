@@ -1,7 +1,7 @@
 package cn.bugstack.springframework.beans.factory.support;
 
 import cn.bugstack.springframework.beans.BeansException;
-import cn.bugstack.springframework.beans.factory.BeanFactory;
+import cn.bugstack.springframework.beans.factory.FactoryBean;
 import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
 import cn.bugstack.springframework.beans.factory.config.BeanPostProcessor;
 import cn.bugstack.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -16,7 +16,7 @@ import java.util.List;
  * @Author wangyuj
  * @Date 2021/7/26
  */
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
 
     private final ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     /** BeanPostProcessors to apply in createBean */
@@ -40,10 +40,21 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     protected <T> T doGetBean(String name, Object[] args) {
         Object bean = getSingleton(name);
         if (bean != null) {
-            return (T) bean;
+            return (T) getObjectForBeanInstance(name, bean);
         }
         BeanDefinition beanDefinition = getBeanDefinition(name);
         return (T) createBean(name, beanDefinition, args);
+    }
+
+    private Object getObjectForBeanInstance(String name, Object bean) {
+        if (!(bean instanceof FactoryBean)) {
+            return bean;
+        }
+        Object object = getObjectFormFactoryBean((FactoryBean) bean, name);
+        if (object == null) {
+            object=  getObjectFormFactoryBean((FactoryBean) bean, name);
+        }
+        return object;
     }
 
     protected abstract BeanDefinition getBeanDefinition(String beanName) throws BeansException;

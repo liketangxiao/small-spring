@@ -14,6 +14,7 @@ import java.util.Set;
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
+    protected static final Object NULL_OBJECT = new Object();
     private final HashMap<String, Object> singletonObjects = new HashMap<>();
     private final HashMap<String, DisposableBean> disposableBeans = new HashMap<>();
 
