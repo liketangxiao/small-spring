@@ -22,7 +22,7 @@
 - [学习说明 🍁`(学习套路&源码使用)`](https://github.com/fuzhengwei/small-spring#bookmark-%E5%AD%A6%E4%B9%A0%E8%AF%B4%E6%98%8E)
 - [章节目录](https://github.com/fuzhengwei/small-spring#pencil-%E7%AB%A0%E8%8A%82%E7%9B%AE%E5%BD%95)
 - [我的书籍](https://github.com/fuzhengwei/small-spring#books-%E6%88%91%E7%9A%84%E4%B9%A6%E7%B1%8D)
-- [联系作者](https://github.com/fuzhengwei/small-spring#paw_prints-%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)
+- [问题交流](https://github.com/fuzhengwei/small-spring#paw_prints-%E9%97%AE%E9%A2%98%E4%BA%A4%E6%B5%81)
 - [参考资料](https://github.com/fuzhengwei/small-spring#tulip-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99)
 
 ## :bookmark: 学习说明
@@ -67,7 +67,9 @@
 - [x] [`第 12 章：炉火纯青，基于JDK和Cglib动态代理，实现AOP核心功能`](https://bugstack.cn/spring/2021/07/13/%E7%AC%AC12%E7%AB%A0-%E7%82%89%E7%81%AB%E7%BA%AF%E9%9D%92-%E5%9F%BA%E4%BA%8EJDK%E5%92%8CCglib%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86-%E5%AE%9E%E7%8E%B0AOP%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD.html)
 - [x] [`第 13 章：行云流水，把AOP动态代理，融入到Bean的生命周期`](https://bugstack.cn/spring/2021/07/22/%E7%AC%AC13%E7%AB%A0-%E8%A1%8C%E4%BA%91%E6%B5%81%E6%B0%B4-%E6%8A%8AAOP%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86-%E8%9E%8D%E5%85%A5%E5%88%B0Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.html)
 - [x] [`第 14 章：笑傲江湖，通过注解配置和包自动扫描的方式完成Bean对象的注册`](https://bugstack.cn/spring/2021/07/27/%E7%AC%AC14%E7%AB%A0-%E7%AC%91%E5%82%B2%E6%B1%9F%E6%B9%96-%E9%80%9A%E8%BF%87%E6%B3%A8%E8%A7%A3%E9%85%8D%E7%BD%AE%E5%92%8C%E5%8C%85%E8%87%AA%E5%8A%A8%E6%89%AB%E6%8F%8F%E7%9A%84%E6%96%B9%E5%BC%8F%E5%AE%8C%E6%88%90Bean%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%B3%A8%E5%86%8C.html)
-- [ ] 第 15 章：待归档...
+- [x] [`第 15 章：万人之敌，通过注解给属性注入配置和Bean对象`](https://bugstack.cn/spring/2021/08/03/%E7%AC%AC15%E7%AB%A0-%E4%B8%87%E4%BA%BA%E4%B9%8B%E6%95%8C-%E9%80%9A%E8%BF%87%E6%B3%A8%E8%A7%A3%E7%BB%99%E5%B1%9E%E6%80%A7%E6%B3%A8%E5%85%A5%E9%85%8D%E7%BD%AE%E5%92%8CBean%E5%AF%B9%E8%B1%A1.html)
+- [ ] 第 16 章：待归档...
+- [ ] 第 17 章：待归档...
 
 ## :books: 我的书籍
 
@@ -87,11 +89,19 @@
 >让人怪不好意思的，说是出书有点膨胀，毕竟这不是走出版社的流程，选题、组稿、编著、审读、加工到出版发行。但全书共计107页，11万7千字，20个章节涵盖三个字节码框架(ASM、Javassist、Byte-budy)和JavaAgent使用并附带整套案例源码！
 
 
-## :paw_prints: 联系作者
+## :paw_prints: 问题交流
+
+![](https://github.com/fuzhengwei/small-spring/blob/main/docs/assets/img/bugstack-md.png?raw=true)
+
+<br/>
+<div align="center">
+    <a href="https://github.com/fuzhengwei/CodeGuide/wiki">关注小傅哥，你可以学到的更多！</a>
+</div>
+<br/>  
 
 - **加群交流**
 
-    本群的宗旨是给大家提供一个良好的技术学习交流平台，所以杜绝一切广告！由于微信群人满 100 之后无法加入，请扫描下方二维码先添加作者 “小傅哥” 微信(fustack)，备注：加群。
+    本群的宗旨是给大家提供一个良好的技术学习交流平台，所以杜绝一切广告！由于微信群人满 100 之后无法加入，请扫描下方二维码先添加作者 “小傅哥” 微信(fustack)，备注：`Spring学习加群`。
     
     <img src="https://itedus.cn/_media/fustack.png?x-oss-process=style/may" width="180" height="180"/>
 
