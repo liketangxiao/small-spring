@@ -11,9 +11,11 @@ import cn.bugstack.springframework.aop.framework.JdkDynamicAopProxy;
 import cn.bugstack.springframework.aop.framework.ProxyFactory;
 import cn.bugstack.springframework.aop.framework.ReflectiveMethodInvocation;
 import cn.bugstack.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
+import cn.bugstack.springframework.beans.BeansException;
 import cn.bugstack.springframework.beans.PropertyValue;
 import cn.bugstack.springframework.beans.PropertyValues;
 import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
+import cn.bugstack.springframework.beans.factory.config.BeanPostProcessor;
 import cn.bugstack.springframework.beans.factory.config.BeanReference;
 import cn.bugstack.springframework.beans.factory.support.DefaultListableBeanFactory;
 import cn.bugstack.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -35,6 +37,8 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 博客：https://bugstack.cn - 沉淀、分享、成长，让自己和他人都能有所收获！
@@ -290,4 +294,47 @@ public class ApiTest {
         }
     }
 
+    @Test
+    public void test_scan() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
+    }
+
+    @Test
+    public void test_property() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-property.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService);
+    }
+
+    @Test
+    public void test_beanPost() {
+
+        BeanPostProcessor beanPostProcessor = new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                return null;
+            }
+
+            @Override
+            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+                return null;
+            }
+        };
+
+        List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+        beanPostProcessors.add(beanPostProcessor);
+        beanPostProcessors.add(beanPostProcessor);
+        beanPostProcessors.remove(beanPostProcessor);
+
+        System.out.println(beanPostProcessors.size());
+    }
+
+    @Test
+    public void test_scan1() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
+    }
 }

@@ -2,6 +2,7 @@ package cn.bugstack.springframework.beans.factory.config;
 
 import cn.bugstack.springframework.beans.factory.HierarchicalBeanFactory;
 import cn.bugstack.springframework.beans.factory.ListableBeanFactory;
+import cn.bugstack.springframework.util.StringValueResolver;
 
 /**
  * @Description: ConfigurableBeanFactory 可获取 BeanPostProcessor、BeanClassLoader等的一个配置化接口
@@ -20,4 +21,8 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * 销毁单例对象
      */
     void destroySingletons();
+
+    void addEmbeddedValueResolver(StringValueResolver valueResolver);
+
+    String resolveEmbeddedValue(String value);
 }
