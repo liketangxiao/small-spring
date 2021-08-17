@@ -2,7 +2,7 @@ package cn.bugstack.springframework.aop.aspectj;
 
 import cn.bugstack.springframework.aop.ClassFilter;
 import cn.bugstack.springframework.aop.MethodMatcher;
-import cn.bugstack.springframework.aop.PointCut;
+import cn.bugstack.springframework.aop.Pointcut;
 import org.aspectj.weaver.tools.PointcutExpression;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
@@ -16,8 +16,9 @@ import java.util.Set;
  * @Author wangyuj
  * @Date 2021/8/4
  */
-public class AspectJExpressionPointCut implements PointCut, ClassFilter, MethodMatcher {
-    private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<>();
+public class AspectJExpressionPointcut implements Pointcut, ClassFilter, MethodMatcher {
+
+    private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<PointcutPrimitive>();
 
     static {
         SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION);
@@ -25,13 +26,9 @@ public class AspectJExpressionPointCut implements PointCut, ClassFilter, MethodM
 
     private final PointcutExpression pointcutExpression;
 
-    public AspectJExpressionPointCut(String expression) {
+    public AspectJExpressionPointcut(String expression) {
         PointcutParser pointcutParser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingSpecifiedClassLoaderForResolution(SUPPORTED_PRIMITIVES, this.getClass().getClassLoader());
-        this.pointcutExpression = pointcutParser.parsePointcutExpression(expression);
-    }
-
-    public PointcutExpression getPointcutExpression() {
-        return pointcutExpression;
+        pointcutExpression = pointcutParser.parsePointcutExpression(expression);
     }
 
     @Override
@@ -40,12 +37,12 @@ public class AspectJExpressionPointCut implements PointCut, ClassFilter, MethodM
     }
 
     @Override
-    public boolean matches(Method method, Class<?> clazz) {
+    public boolean matches(Method method, Class<?> targetClass) {
         return pointcutExpression.matchesMethodExecution(method).alwaysMatches();
     }
 
     @Override
-    public ClassFilter getCalssFilter() {
+    public ClassFilter getClassFilter() {
         return this;
     }
 

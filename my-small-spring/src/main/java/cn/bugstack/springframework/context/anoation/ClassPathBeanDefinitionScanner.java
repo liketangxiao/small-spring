@@ -6,7 +6,6 @@ import cn.bugstack.springframework.beans.factory.support.BeanDefinitionRegistry;
 import cn.bugstack.springframework.stereotype.Component;
 import cn.hutool.core.util.StrUtil;
 
-import java.sql.Struct;
 import java.util.Set;
 
 /**
@@ -15,26 +14,35 @@ import java.util.Set;
  * @Date 2021/8/9
  */
 public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
-    private final BeanDefinitionRegistry registry;
+
+    private BeanDefinitionRegistry registry;
 
     public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
     }
 
-    public void doScan(String... baseScanPackages) {
-        for (String baseScanPackage : baseScanPackages) {
-            Set<BeanDefinition> candidateComponents = findCandidateComponents(baseScanPackage);
-            for (BeanDefinition beanDefinition : candidateComponents) {
+    public void doScan(String... basePackages) {
+        for (String basePackage : basePackages) {
+            Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
+            for (BeanDefinition beanDefinition : candidates) {
+                // 解析 Bean 的作用域 singleton、prototype
                 String beanScope = resolveBeanScope(beanDefinition);
                 if (StrUtil.isNotEmpty(beanScope)) {
                     beanDefinition.setScope(beanScope);
                 }
-                String value = determineBeanName(beanDefinition);
-                registry.registerBeanDefinition(value, beanDefinition);
+                registry.registerBeanDefinition(determineBeanName(beanDefinition), beanDefinition);
             }
         }
-        registry.registerBeanDefinition("cn.bugstack.springframework.context.annotation.internalAutowiredAnnotationProcessor", new BeanDefinition(AutowiredAnnotationBeanPostProcessor.class));
 
+        // 注册处理注解的 BeanPostProcessor（@Autowired、@Value）
+        registry.registerBeanDefinition("cn.bugstack.springframework.context.annotation.internalAutowiredAnnotationProcessor", new BeanDefinition(AutowiredAnnotationBeanPostProcessor.class));
+    }
+
+    private String resolveBeanScope(BeanDefinition beanDefinition) {
+        Class<?> beanClass = beanDefinition.getBeanClass();
+        Scope scope = beanClass.getAnnotation(Scope.class);
+        if (null != scope) return scope.value();
+        return StrUtil.EMPTY;
     }
 
     private String determineBeanName(BeanDefinition beanDefinition) {
@@ -47,10 +55,4 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
         return value;
     }
 
-    private String resolveBeanScope(BeanDefinition beanDefinition) {
-        Class<?> beanClass = beanDefinition.getBeanClass();
-        Scope scope = beanClass.getAnnotation(Scope.class);
-        if (null != scope) return scope.value();
-        return StrUtil.EMPTY;
-    }
 }

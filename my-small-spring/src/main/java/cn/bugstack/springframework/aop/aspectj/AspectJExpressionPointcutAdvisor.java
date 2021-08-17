@@ -1,6 +1,6 @@
 package cn.bugstack.springframework.aop.aspectj;
 
-import cn.bugstack.springframework.aop.PointCut;
+import cn.bugstack.springframework.aop.Pointcut;
 import cn.bugstack.springframework.aop.PointcutAdvisor;
 import org.aopalliance.aop.Advice;
 
@@ -10,16 +10,24 @@ import org.aopalliance.aop.Advice;
  * @Date 2021/8/5
  */
 public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
-    private AspectJExpressionPointCut pointCut;
-    private Advice advice;
-    private String expression;
 
-    public void setAspectJExpressionPointCut(AspectJExpressionPointCut pointCut) {
-        this.pointCut = pointCut;
-    }
+    // 切面
+    private AspectJExpressionPointcut pointcut;
+    // 具体的拦截方法
+    private Advice advice;
+    // 表达式
+    private String expression;
 
     public void setExpression(String expression) {
         this.expression = expression;
+    }
+
+    @Override
+    public Pointcut getPointcut() {
+        if (null == pointcut) {
+            pointcut = new AspectJExpressionPointcut(expression);
+        }
+        return pointcut;
     }
 
     @Override
@@ -31,11 +39,4 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
         this.advice = advice;
     }
 
-    @Override
-    public PointCut getPointcut() {
-        if (pointCut == null) {
-            pointCut = new AspectJExpressionPointCut(expression);
-        }
-        return pointCut;
-    }
 }

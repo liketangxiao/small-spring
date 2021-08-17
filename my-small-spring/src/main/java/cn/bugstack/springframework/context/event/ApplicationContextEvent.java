@@ -19,7 +19,10 @@ public class ApplicationContextEvent extends ApplicationEvent {
         super(source);
     }
 
-    public ApplicationContext getApplicationContext() {
+    /**
+     * Get the <code>ApplicationContext</code> that the event was raised for.
+     */
+    public final ApplicationContext getApplicationContext() {
         return (ApplicationContext) getSource();
     }
 }

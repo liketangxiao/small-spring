@@ -13,36 +13,37 @@ import java.lang.reflect.Method;
  * @Date 2021/8/4
  */
 public class Cglib2AopProxy implements AopProxy {
-    private final AdvisedSupport advisedSupport;
 
-    public Cglib2AopProxy(AdvisedSupport advisedSupport) {
-        this.advisedSupport = advisedSupport;
+    private final AdvisedSupport advised;
+
+    public Cglib2AopProxy(AdvisedSupport advised) {
+        this.advised = advised;
     }
 
     @Override
     public Object getProxy() {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(advisedSupport.getTargetSource().getTarget().getClass());
-        enhancer.setInterfaces(advisedSupport.getTargetSource().getTargetClass());
-        enhancer.setCallback(new DynamicAdvisedInterceptor(advisedSupport));
+        enhancer.setSuperclass(advised.getTargetSource().getTarget().getClass());
+        enhancer.setInterfaces(advised.getTargetSource().getTargetClass());
+        enhancer.setCallback(new DynamicAdvisedInterceptor(advised));
         return enhancer.create();
     }
 
     private static class DynamicAdvisedInterceptor implements MethodInterceptor {
-        private final AdvisedSupport advisedSupport;
 
-        private DynamicAdvisedInterceptor(AdvisedSupport advisedSupport) {
-            this.advisedSupport = advisedSupport;
+        private final AdvisedSupport advised;
+
+        public DynamicAdvisedInterceptor(AdvisedSupport advised) {
+            this.advised = advised;
         }
 
         @Override
         public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-
-            CglibMethodInvocation cglibMethodInvocation = new CglibMethodInvocation(advisedSupport.getTargetSource().getTarget(), method, objects, methodProxy);
-            if (advisedSupport.getMethodMatcher().matches(method, advisedSupport.getTargetSource().getTarget().getClass())) {
-                return advisedSupport.getMethodInterceptor().invoke(cglibMethodInvocation);
+            CglibMethodInvocation methodInvocation = new CglibMethodInvocation(advised.getTargetSource().getTarget(), method, objects, methodProxy);
+            if (advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {
+                return advised.getMethodInterceptor().invoke(methodInvocation);
             }
-            return advisedSupport.getMethodInterceptor().invoke(cglibMethodInvocation);
+            return methodInvocation.proceed();
         }
     }
 

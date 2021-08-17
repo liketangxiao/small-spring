@@ -19,7 +19,7 @@ import java.util.List;
  */
 public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
 
-    private final ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     /**
      * BeanPostProcessors to apply in createBean
      */
@@ -29,12 +29,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 
     @Override
-    public Object getBean(String name) {
+    public Object getBean(String name) throws BeansException {
         return doGetBean(name, null);
     }
 
     @Override
-    public Object getBean(String name, Object... args) {
+    public Object getBean(String name, Object... args) throws BeansException {
         return doGetBean(name, args);
     }
 
@@ -43,22 +43,27 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return (T) getBean(name);
     }
 
-    protected <T> T doGetBean(String name, Object[] args) {
-        Object bean = getSingleton(name);
-        if (bean != null) {
-            return (T) getObjectForBeanInstance(name, bean);
+    protected <T> T doGetBean(final String name, final Object[] args) {
+        Object sharedInstance = getSingleton(name);
+        if (sharedInstance != null) {
+            // 如果是 FactoryBean，则需要调用 FactoryBean#getObject
+            return (T) getObjectForBeanInstance(sharedInstance, name);
         }
         BeanDefinition beanDefinition = getBeanDefinition(name);
-        return (T) createBean(name, beanDefinition, args);
+        Object bean = createBean(name, beanDefinition, args);
+        return (T) getObjectForBeanInstance(bean, name);
     }
 
-    private Object getObjectForBeanInstance(String name, Object bean) {
-        if (!(bean instanceof FactoryBean)) {
-            return bean;
+    private Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
         }
-        Object object = getObjectFormFactoryBean((FactoryBean) bean, name);
+
+        Object object = getCachedObjectForFactoryBean(beanName);
+
         if (object == null) {
-            object=  getObjectFormFactoryBean((FactoryBean) bean, name);
+            FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+            object = getObjectFromFactoryBean(factoryBean, beanName);
         }
         return object;
     }
@@ -73,29 +78,29 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         this.beanPostProcessors.add(beanPostProcessor);
     }
 
-    /**
-     * Return the list of BeanPostProcessors that will get applied
-     * to beans created with this factory.
-     */
-    public List<BeanPostProcessor> getBeanPostProcessors() {
-        return this.beanPostProcessors;
-    }
-
-    protected ClassLoader getBeanClassLoader() {
-        return beanClassLoader;
-    }
-
     @Override
     public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
-        embeddedValueResolvers.add(valueResolver);
+        this.embeddedValueResolvers.add(valueResolver);
     }
 
     @Override
     public String resolveEmbeddedValue(String value) {
         String result = value;
-        for (StringValueResolver stringValueResolver : embeddedValueResolvers) {
-            result = stringValueResolver.resolveStringValue(result);
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            result = resolver.resolveStringValue(result);
         }
         return result;
     }
+
+    /**
+     *
+     */
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
+    }
+
+    public ClassLoader getBeanClassLoader() {
+        return this.beanClassLoader;
+    }
+
 }

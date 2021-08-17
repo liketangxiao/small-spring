@@ -11,5 +11,7 @@ import java.lang.reflect.Constructor;
  * @Date 2021/7/27
  */
 public interface InstantiationStrategy {
-    Object instantiate(BeanDefinition beanDefinition, String beanName, Constructor<?> constructor, Object[] agrs)  throws BeansException;
+
+    Object instantiate(BeanDefinition beanDefinition, String beanName, Constructor ctor, Object[] args) throws BeansException;
+
 }

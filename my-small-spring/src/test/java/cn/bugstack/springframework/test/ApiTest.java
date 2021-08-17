@@ -4,7 +4,7 @@ import cn.bugstack.springframework.aop.AdvisedSupport;
 import cn.bugstack.springframework.aop.ClassFilter;
 import cn.bugstack.springframework.aop.MethodMatcher;
 import cn.bugstack.springframework.aop.TargetSource;
-import cn.bugstack.springframework.aop.aspectj.AspectJExpressionPointCut;
+import cn.bugstack.springframework.aop.aspectj.AspectJExpressionPointcut;
 import cn.bugstack.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import cn.bugstack.springframework.aop.framework.Cglib2AopProxy;
 import cn.bugstack.springframework.aop.framework.JdkDynamicAopProxy;
@@ -164,7 +164,7 @@ public class ApiTest {
 
     @Test
     public void test_aop() throws NoSuchMethodException {
-        AspectJExpressionPointCut pointcut = new AspectJExpressionPointCut("execution(* cn.bugstack.springframework.test.bean.UserService.*(..))");
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* cn.bugstack.springframework.test.bean.UserService.*(..))");
 
         Class<UserService> clazz = UserService.class;
         Method method = clazz.getDeclaredMethod("queryUserInfo");
@@ -181,7 +181,7 @@ public class ApiTest {
         AdvisedSupport advisedSupport = new AdvisedSupport();
         advisedSupport.setTargetSource(new TargetSource(userService));
         advisedSupport.setMethodInterceptor(new UserServiceInterceptor());
-        advisedSupport.setMethodMatcher(new AspectJExpressionPointCut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))"));
+        advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))"));
 
         // 代理对象(JdkDynamicAopProxy)
         IUserService proxy_jdk = (IUserService) new JdkDynamicAopProxy(advisedSupport).getProxy();
@@ -210,7 +210,7 @@ public class ApiTest {
         // AOP 代理
         IUserService proxy = (IUserService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), targetObj.getClass().getInterfaces(), new InvocationHandler() {
             // 方法匹配器
-            MethodMatcher methodMatcher = new AspectJExpressionPointCut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))");
+            MethodMatcher methodMatcher = new AspectJExpressionPointcut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))");
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -249,7 +249,7 @@ public class ApiTest {
         advisedSupport = new AdvisedSupport();
         advisedSupport.setTargetSource(new TargetSource(userService));
         advisedSupport.setMethodInterceptor(new UserServiceInterceptor());
-        advisedSupport.setMethodMatcher(new AspectJExpressionPointCut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))"));
+        advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))"));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class ApiTest {
         advisor.setExpression("execution(* cn.bugstack.springframework.test.bean.IUserService.*(..))");
         advisor.setAdvice(new MethodBeforeAdviceInterceptor(new UserServiceBeforeAdvice()));
 
-        ClassFilter classFilter = advisor.getPointcut().getCalssFilter();
+        ClassFilter classFilter = advisor.getPointcut().getClassFilter();
         if (classFilter.matches(userService.getClass())) {
             AdvisedSupport advisedSupport = new AdvisedSupport();
 
@@ -337,4 +337,21 @@ public class ApiTest {
         IUserService userService = applicationContext.getBean("userService", IUserService.class);
         System.out.println("测试结果：" + userService.queryUserInfo());
     }
+
+    @Test
+    public void test_autoProxy() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
+    }
+
+    @Test
+    public void test_circular() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        Husband husband = applicationContext.getBean("husband", Husband.class);
+        Wife wife = applicationContext.getBean("wife", Wife.class);
+        System.out.println("老公的媳妇：" + husband.queryWife());
+        System.out.println("媳妇的老公：" + wife.queryHusband());
+    }
+
 }

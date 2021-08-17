@@ -6,9 +6,9 @@ import cn.bugstack.springframework.beans.factory.config.BeanFactoryPostProcessor
 import cn.bugstack.springframework.beans.factory.config.BeanPostProcessor;
 import cn.bugstack.springframework.context.ApplicationEvent;
 import cn.bugstack.springframework.context.ApplicationListener;
-import cn.bugstack.springframework.context.ConfigurableAplicationContext;
+import cn.bugstack.springframework.context.ConfigurableApplicationContext;
 import cn.bugstack.springframework.context.event.ApplicationEventMulticaster;
-import cn.bugstack.springframework.context.event.ContextCloseEvent;
+import cn.bugstack.springframework.context.event.ContextClosedEvent;
 import cn.bugstack.springframework.context.event.ContextRefreshedEvent;
 import cn.bugstack.springframework.context.event.SimpleApplicationEventMulticaster;
 import cn.bugstack.springframework.core.io.DefaultResourceLoader;
@@ -21,40 +21,57 @@ import java.util.Map;
  * @Author wangyuj
  * @Date 2021/8/2
  */
-public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableAplicationContext {
+public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
 
     public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
     private ApplicationEventMulticaster applicationEventMulticaster;
 
     @Override
     public void refresh() throws BeansException {
-        /** 创建BeanFactory 并加载BeanDefinition */
+        // 1. 创建 BeanFactory，并加载 BeanDefinition
         refreshBeanFactory();
-        /** 获取BeanFactory */
+
+        // 2. 获取 BeanFactory
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
-        /** 添加ApplicationContextAwareProcessor, 让继承自ApplicationContextAware的bean对象能感知所属的ApplicationContext */
+
+        // 3. 添加 ApplicationContextAwareProcessor，让继承自 ApplicationContextAware 的 Bean 对象都能感知所属的 ApplicationContext
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
-        /** Bean实例化之前执行 */
-        invokebeanFactroyPostProcessors(beanFactory);
-        /** BeanPostProcessor需要提前于其他Bean对象实例化执行注册操作 */
+
+        // 4. 在 Bean 实例化之前，执行 BeanFactoryPostProcessor (Invoke factory processors registered as beans in the context.)
+        invokeBeanFactoryPostProcessors(beanFactory);
+
+        // 5. BeanPostProcessor 需要提前于其他 Bean 对象实例化之前执行注册操作
         registerBeanPostProcessors(beanFactory);
-        /** 初始化事件发布者 */
+
+        // 6. 初始化事件发布者
         initApplicationEventMulticaster();
-        /** 注册监听事件 */
+
+        // 7. 注册事件监听器
         registerListeners();
-        /** 提前实例化单例bean对象 */
+
+        // 8. 提前实例化单例Bean对象
         beanFactory.preInstantiateSingletons();
-        /** 发布容器刷新事件 */
+
+        // 9. 发布容器刷新完成事件
         finishRefresh();
     }
 
-    private void finishRefresh() {
-        publishEvent(new ContextRefreshedEvent(this));
+    protected abstract void refreshBeanFactory() throws BeansException;
+
+    protected abstract ConfigurableListableBeanFactory getBeanFactory();
+
+    private void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+        Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessorMap = beanFactory.getBeansOfType(BeanFactoryPostProcessor.class);
+        for (BeanFactoryPostProcessor beanFactoryPostProcessor : beanFactoryPostProcessorMap.values()) {
+            beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+        }
     }
 
-    private void registerListeners() {
-        Collection<ApplicationListener> applicationListeners = getBeansOfType(ApplicationListener.class).values();
-        applicationListeners.forEach(applicationListener -> applicationEventMulticaster.addApplicationListener(applicationListener));
+    private void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+        Map<String, BeanPostProcessor> beanPostProcessorMap = beanFactory.getBeansOfType(BeanPostProcessor.class);
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessorMap.values()) {
+            beanFactory.addBeanPostProcessor(beanPostProcessor);
+        }
     }
 
     private void initApplicationEventMulticaster() {
@@ -63,41 +80,34 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
     }
 
+    private void registerListeners() {
+        Collection<ApplicationListener> applicationListeners = getBeansOfType(ApplicationListener.class).values();
+        for (ApplicationListener listener : applicationListeners) {
+            applicationEventMulticaster.addApplicationListener(listener);
+        }
+    }
+
+    private void finishRefresh() {
+        publishEvent(new ContextRefreshedEvent(this));
+    }
+
     @Override
     public void publishEvent(ApplicationEvent event) {
         applicationEventMulticaster.multicastEvent(event);
     }
 
     @Override
-    public void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        return getBeanFactory().getBeansOfType(type);
     }
 
     @Override
-    public void close() {
-        publishEvent(new ContextCloseEvent(this));
-        getBeanFactory().destroySingletons();
+    public String[] getBeanDefinitionNames() {
+        return getBeanFactory().getBeanDefinitionNames();
     }
-
-    private void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        Map<String, BeanPostProcessor> beansOfType = beanFactory.getBeansOfType(BeanPostProcessor.class);
-
-        beansOfType.forEach((beanName, beanPostProcessor) -> beanFactory.addBeanPostProcessor(beanPostProcessor));
-    }
-
-    private void invokebeanFactroyPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        Map<String, BeanFactoryPostProcessor> beansOfType = beanFactory.getBeansOfType(BeanFactoryPostProcessor.class);
-        beansOfType.forEach((beanName, beanFactoryPostProcessor) -> {
-            beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
-        });
-    }
-
-    protected abstract void refreshBeanFactory() throws BeansException;
-
-    protected abstract ConfigurableListableBeanFactory getBeanFactory();
 
     @Override
-    public Object getBean(String name) {
+    public Object getBean(String name) throws BeansException {
         return getBeanFactory().getBean(name);
     }
 
@@ -117,14 +127,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
 
     @Override
-    public <T> Map<String, T> getBeansOfType(Class<T> clazz) throws BeansException {
-        return getBeanFactory().getBeansOfType(clazz);
+    public void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     @Override
-    public String[] getBeanDefinitionNames() {
-        return getBeanFactory().getBeanDefinitionNames();
-    }
+    public void close() {
+        // 发布容器关闭事件
+        publishEvent(new ContextClosedEvent(this));
 
+        // 执行销毁单例bean的销毁方法
+        getBeanFactory().destroySingletons();
+    }
 
 }

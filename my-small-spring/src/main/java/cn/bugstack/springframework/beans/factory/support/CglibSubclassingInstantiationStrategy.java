@@ -14,19 +14,17 @@ import java.lang.reflect.Constructor;
  */
 public class CglibSubclassingInstantiationStrategy implements InstantiationStrategy{
     @Override
-    public Object instantiate(BeanDefinition beanDefinition, String beanName, Constructor<?> constructor, Object[] agrs) throws BeansException {
-        Class<?> beanClass = beanDefinition.getBeanClass();
+    public Object instantiate(BeanDefinition beanDefinition, String beanName, Constructor ctor, Object[] args) throws BeansException {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(beanClass);
+        enhancer.setSuperclass(beanDefinition.getBeanClass());
         enhancer.setCallback(new NoOp() {
             @Override
             public int hashCode() {
                 return super.hashCode();
             }
         });
-        if (constructor != null) {
-            return enhancer.create(constructor.getParameterTypes(), agrs);
-        }
-        return enhancer.create();
+        if (null == ctor) return enhancer.create();
+        return enhancer.create(ctor.getParameterTypes(), args);
     }
+
 }

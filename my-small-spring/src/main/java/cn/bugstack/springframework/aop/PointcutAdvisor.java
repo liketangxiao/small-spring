@@ -6,5 +6,10 @@ package cn.bugstack.springframework.aop;
  * @Date 2021/8/5
  */
 public interface PointcutAdvisor extends Advisor {
-    PointCut getPointcut();
+
+    /**
+     * Get the Pointcut that drives this advisor.
+     */
+    Pointcut getPointcut();
+
 }

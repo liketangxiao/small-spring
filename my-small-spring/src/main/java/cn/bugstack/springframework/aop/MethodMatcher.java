@@ -8,5 +8,12 @@ import java.lang.reflect.Method;
  * @Date 2021/8/4
  */
 public interface MethodMatcher {
-    boolean matches(Method method, Class<?> clazz);
+
+    /**
+     * Perform static checking whether the given method matches. If this
+     *
+     * @return whether or not this method matches statically
+     */
+    boolean matches(Method method, Class<?> targetClass);
+
 }

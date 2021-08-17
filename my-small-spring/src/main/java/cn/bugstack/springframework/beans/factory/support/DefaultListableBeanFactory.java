@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Description: DefaultListableBeanFactory
@@ -15,11 +16,12 @@ import java.util.Map;
  * @Date 2021/7/27
  */
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
-    private final HashMap<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
+
+    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     @Override
-    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
-        beanDefinitionMap.put(name, beanDefinition);
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+        beanDefinitionMap.put(beanName, beanDefinition);
     }
 
     @Override
@@ -28,26 +30,27 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
     @Override
-    public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
-        BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
-        if (beanDefinition == null) throw new BeansException("No bean named '" + beanName + "' is defined");
-        return beanDefinition;
-    }
-
-    @Override
-    public <T> Map<String, T> getBeansOfType(Class<T> clazz) throws BeansException {
-        Map<String, T> resultMap = new HashMap<>();
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        Map<String, T> result = new HashMap<>();
         beanDefinitionMap.forEach((beanName, beanDefinition) -> {
-            if (clazz.isAssignableFrom(beanDefinition.getBeanClass())) {
-                resultMap.put(beanName, (T) getBean(beanName));
+            Class beanClass = beanDefinition.getBeanClass();
+            if (type.isAssignableFrom(beanClass)) {
+                result.put(beanName, (T) getBean(beanName));
             }
         });
-        return resultMap;
+        return result;
     }
 
     @Override
     public String[] getBeanDefinitionNames() {
         return beanDefinitionMap.keySet().toArray(new String[0]);
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
+        BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+        if (beanDefinition == null) throw new BeansException("No bean named '" + beanName + "' is defined");
+        return beanDefinition;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public <T> T getBean(Class<T> requiredType) throws BeansException {
         List<String> beanNames = new ArrayList<>();
         for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
-            Class<?> beanClass = entry.getValue().getBeanClass();
+            Class beanClass = entry.getValue().getBeanClass();
             if (requiredType.isAssignableFrom(beanClass)) {
                 beanNames.add(entry.getKey());
             }

@@ -8,7 +8,7 @@ import cn.bugstack.springframework.beans.BeansException;
  * @Date 2021/7/29
  */
 public interface AutowireCapableBeanFactory {
-    Object applyBeanPostProcessorsBeforeInitialization(Object existBean, String beanName) throws BeansException;
+    Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;
 
-    Object applyBeanPostProcessorsAfterInitialization(Object existBean, String beanName) throws BeansException;
+    Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException;
 }

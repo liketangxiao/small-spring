@@ -18,22 +18,26 @@ import java.util.Properties;
  * @Date 2021/8/6
  */
 public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
+
+    /**
+     * Default placeholder prefix: {@value}
+     */
     public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
+
+    /**
+     * Default placeholder suffix: {@value}
+     */
     public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
     private String location;
-
-    public PropertyPlaceholderConfigurer() {
-    }
-
-    public PropertyPlaceholderConfigurer(String location) {
-        this.location = location;
-    }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         try {
-            DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
-            Resource resource = defaultResourceLoader.getResource(location);
+            // 加载属性文件
+            DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+            Resource resource = resourceLoader.getResource(location);
+
+            // 占位符替换属性值
             Properties properties = new Properties();
             properties.load(resource.getInputStream());
             String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
@@ -43,7 +47,7 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
                 for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
                     Object value = propertyValue.getValue();
                     if (!(value instanceof String)) continue;
-                    value = resolvePlaceholder(properties, (String) value);
+                    value = resolvePlaceholder((String) value, properties);
                     propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), value));
                 }
             }
@@ -51,32 +55,38 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
             StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(properties);
             beanFactory.addEmbeddedValueResolver(valueResolver);
         } catch (IOException e) {
-            throw new BeansException("load properties failed");
+            throw new BeansException("Could not load properties", e);
         }
     }
 
-    private String resolvePlaceholder(Properties properties, String value) {
-        StringBuilder buffer = new StringBuilder(value);
-        int startIdx = value.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
-        int stopIdx = value.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
+    private String resolvePlaceholder(String value, Properties properties) {
+        String strVal = value;
+        StringBuilder buffer = new StringBuilder(strVal);
+        int startIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
+        int stopIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
         if (startIdx != -1 && stopIdx != -1 && startIdx < stopIdx) {
-            String propKey = value.substring(startIdx + 2, stopIdx);
+            String propKey = strVal.substring(startIdx + 2, stopIdx);
             String propVal = properties.getProperty(propKey);
             buffer.replace(startIdx, stopIdx + 1, propVal);
         }
         return buffer.toString();
     }
 
-    private class PlaceholderResolvingStringValueResolver implements StringValueResolver {
-        private Properties properties;
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
-        private PlaceholderResolvingStringValueResolver(Properties properties) {
+    private class PlaceholderResolvingStringValueResolver implements StringValueResolver {
+
+        private final Properties properties;
+
+        public PlaceholderResolvingStringValueResolver(Properties properties) {
             this.properties = properties;
         }
 
         @Override
         public String resolveStringValue(String strVal) {
-            return resolvePlaceholder(properties, strVal);
+            return PropertyPlaceholderConfigurer.this.resolvePlaceholder(strVal, properties);
         }
     }
 }

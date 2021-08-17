@@ -10,7 +10,10 @@ import org.aopalliance.intercept.MethodInvocation;
  * @Date 2021/8/5
  */
 public class MethodBeforeAdviceInterceptor implements MethodInterceptor {
-    private final MethodBeforeAdvice advice;
+    private MethodBeforeAdvice advice;
+
+    public MethodBeforeAdviceInterceptor() {
+    }
 
     public MethodBeforeAdviceInterceptor(MethodBeforeAdvice advice) {
         this.advice = advice;
@@ -22,4 +25,11 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor {
         return methodInvocation.proceed();
     }
 
+    public MethodBeforeAdvice getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(MethodBeforeAdvice advice) {
+        this.advice = advice;
+    }
 }

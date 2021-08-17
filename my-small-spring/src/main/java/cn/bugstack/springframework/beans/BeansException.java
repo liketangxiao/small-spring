@@ -6,14 +6,12 @@ package cn.bugstack.springframework.beans;
  * @Date 2021/7/27
  */
 public class BeansException extends RuntimeException {
-    public BeansException() {
+
+    public BeansException(String msg) {
+        super(msg);
     }
 
-    public BeansException(String message) {
-        super(message);
-    }
-
-    public BeansException(String message, Throwable cause) {
-        super(message, cause);
+    public BeansException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }

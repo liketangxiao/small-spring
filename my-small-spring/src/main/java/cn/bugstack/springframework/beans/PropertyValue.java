@@ -6,11 +6,10 @@ package cn.bugstack.springframework.beans;
  * @Date 2021/7/27
  */
 public class PropertyValue {
-    private String name;
-    private Object value;
 
-    public PropertyValue() {
-    }
+    private final String name;
+
+    private final Object value;
 
     public PropertyValue(String name, Object value) {
         this.name = name;
@@ -21,15 +20,8 @@ public class PropertyValue {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Object getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
 }

@@ -2,7 +2,6 @@ package cn.bugstack.springframework.beans;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @Description: PropertyValues 属性集合
@@ -10,19 +9,24 @@ import java.util.Optional;
  * @Date 2021/7/27
  */
 public class PropertyValues {
-    private List<PropertyValue> propertyValueList = new ArrayList<>();
+
+    private final List<PropertyValue> propertyValueList = new ArrayList<>();
+
+    public void addPropertyValue(PropertyValue pv) {
+        this.propertyValueList.add(pv);
+    }
 
     public PropertyValue[] getPropertyValues() {
-        return propertyValueList.toArray(new PropertyValue[0]);
+        return this.propertyValueList.toArray(new PropertyValue[0]);
     }
 
     public PropertyValue getPropertyValue(String propertyName) {
-        Optional<PropertyValue> propertyValueOptional = propertyValueList.stream().filter(propertyValue ->
-                propertyValue.getName().equals(propertyName)).findFirst();
-        return propertyValueOptional.orElse(null);
+        for (PropertyValue pv : this.propertyValueList) {
+            if (pv.getName().equals(propertyName)) {
+                return pv;
+            }
+        }
+        return null;
     }
 
-    public void addPropertyValue(PropertyValue propertyValue) {
-        propertyValueList.add(propertyValue);
-    }
 }

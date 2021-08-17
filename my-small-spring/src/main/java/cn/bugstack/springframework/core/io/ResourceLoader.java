@@ -8,5 +8,6 @@ package cn.bugstack.springframework.core.io;
 public interface ResourceLoader {
     String CLASSPATH_URL_PREFIX = "classpath:";
 
-    Resource getResource(String classPath);
+    Resource getResource(String location);
+
 }

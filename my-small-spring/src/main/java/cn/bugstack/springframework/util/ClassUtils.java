@@ -7,11 +7,17 @@ package cn.bugstack.springframework.util;
  */
 public class ClassUtils {
     public static ClassLoader getDefaultClassLoader() {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader != null) {
-            return classLoader;
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+        } catch (Throwable ex) {
+            // Cannot access thread context ClassLoader - falling back to system class loader...
         }
-        return ClassUtils.class.getClassLoader();
+        if (cl == null) {
+            // No thread context class loader -> use class loader of this class.
+            cl = ClassUtils.class.getClassLoader();
+        }
+        return cl;
     }
 
     /**

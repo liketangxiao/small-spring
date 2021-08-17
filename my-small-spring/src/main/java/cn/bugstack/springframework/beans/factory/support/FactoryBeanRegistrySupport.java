@@ -11,32 +11,36 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author wangyuj
  * @Date 2021/8/3
  */
-public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
-    private final Map<String, Object> factoryBeanObejectCache = new ConcurrentHashMap<>();
+public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
-    protected Object getCacheObjectForFactoryBean(String beanName) {
-        Object object = factoryBeanObejectCache.get(beanName);
+    /**
+     * Cache of singleton objects created by FactoryBeans: FactoryBean name --> object
+     */
+    private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<String, Object>();
+
+    protected Object getCachedObjectForFactoryBean(String beanName) {
+        Object object = this.factoryBeanObjectCache.get(beanName);
         return (object != NULL_OBJECT ? object : null);
     }
 
-    protected Object getObjectFormFactoryBean(FactoryBean factoryBean, String beanName) {
-        if (factoryBean.isSingleton()) {
-            Object object = factoryBeanObejectCache.get(beanName);
+    protected Object getObjectFromFactoryBean(FactoryBean factory, String beanName) {
+        if (factory.isSingleton()) {
+            Object object = this.factoryBeanObjectCache.get(beanName);
             if (object == null) {
-                object = doGetObjectFormFactoryBean(factoryBean, beanName);
-                factoryBeanObejectCache.put(beanName, object);
+                object = doGetObjectFromFactoryBean(factory, beanName);
+                this.factoryBeanObjectCache.put(beanName, (object != null ? object : NULL_OBJECT));
             }
             return (object != NULL_OBJECT ? object : null);
         } else {
-            return doGetObjectFormFactoryBean(factoryBean, beanName);
+            return doGetObjectFromFactoryBean(factory, beanName);
         }
     }
 
-    private Object doGetObjectFormFactoryBean(FactoryBean factoryBean, String beanName) {
+    private Object doGetObjectFromFactoryBean(final FactoryBean factory, final String beanName) {
         try {
-            return factoryBean.getObject();
+            return factory.getObject();
         } catch (Exception e) {
-            throw new BeansException("FactoryBean threw exception on object[" + beanName + "] creation");
+            throw new BeansException("FactoryBean threw exception on object[" + beanName + "] creation", e);
         }
     }
 }

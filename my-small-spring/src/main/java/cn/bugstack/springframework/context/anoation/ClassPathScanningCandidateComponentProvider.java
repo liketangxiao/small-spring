@@ -16,7 +16,9 @@ public class ClassPathScanningCandidateComponentProvider {
     public Set<BeanDefinition> findCandidateComponents(String basePackage) {
         Set<BeanDefinition> candidates = new LinkedHashSet<>();
         Set<Class<?>> classes = ClassUtil.scanPackageByAnnotation(basePackage, Component.class);
-        classes.forEach(clazz -> candidates.add(new BeanDefinition(clazz)));
+        for (Class<?> clazz : classes) {
+            candidates.add(new BeanDefinition(clazz));
+        }
         return candidates;
     }
 }

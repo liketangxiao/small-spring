@@ -23,15 +23,15 @@ public class UrlResource implements Resource {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        URLConnection connection = this.url.openConnection();
+        URLConnection con = this.url.openConnection();
         try {
-            InputStream inputStream = connection.getInputStream();
-        } catch (IOException e) {
-            if (connection instanceof HttpURLConnection) {
-                ((HttpURLConnection) connection).disconnect();
+            return con.getInputStream();
+        } catch (IOException ex) {
+            if (con instanceof HttpURLConnection) {
+                ((HttpURLConnection) con).disconnect();
             }
-            throw e;
+            throw ex;
         }
-        return null;
     }
+
 }
